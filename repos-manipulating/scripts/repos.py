@@ -52,7 +52,7 @@ if args.action == "clone":
 
     for login in file_d:
         login=login.strip()
-        print "begin work for \"%s\" ---->" % login
+        print "begin work for  \"%s\" ---->" % login
         command_line="git clone ssh://%s\@%s/home/%s/repos src/%s" %\
         (
             options["remote_user"],
@@ -61,15 +61,15 @@ if args.action == "clone":
             login
         )
         os.system(command_line)
-        print "finish work for \"%s\" <----" % login
+        print "finish work for \"%s\" <----\n\n" % login
 
 if args.action == "pull" or args.action == "push":
     for login in file_d:
         login=login.strip()
-        print "begin work for \"%s\" ---->" % login
+        print "begin work for  \"%s\" ---->" % login
         command_line="cd src/%s; git %s; cd .." % (login, args.action)
         os.system(command_line)
-        print "finish work for \"%s\" <----" % login
+        print "finish work for \"%s\" <----\n\n" % login
 
 file_d.close()
 
