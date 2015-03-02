@@ -20,7 +20,8 @@ parser.add_argument("--action",
                     required=False,
                     default="pull",
                     help="action with git repository"
-                                                                                                            )
+
+                                                                                                          )
 
 args=parser.parse_args()
 
@@ -70,6 +71,35 @@ if args.action == "pull" or args.action == "push":
         command_line="cd src/%s; git %s; cd .." % (login, args.action)
         os.system(command_line)
         print "finish work for \"%s\" <----\n\n" % login
+
+if args.action == "add-to-trac":
+    for login in file_d:
+        login=login.strip()
+        command_line="trac-admin %s repository add %s-%s %s/src/%s/.git git" %\
+                (
+                        options["trac_env_path"],
+                        options["group_prefix"],
+                        login,
+                        os.getcwd(), 
+                        login
+                )
+        print "begin add  \"%s\" to trac" % login
+        os.system(command_line)
+        print "finish add \"%s\" to trac\n\n" % login
+
+if args.action == "remove-from-trac":
+    for login in file_d:
+        login=login.strip()
+        command_line="trac-admin %s repository remove %s-%s" %\
+                (
+                        options["trac_env_path"],
+                        options["group_prefix"],
+                        login
+                )
+        print "begin remove from  \"%s\" trac" % login
+        os.system(command_line)
+        print "finish remove from \"%s\" trac\n\n" % login
+
 
 file_d.close()
 
