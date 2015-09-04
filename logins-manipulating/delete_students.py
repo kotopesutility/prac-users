@@ -27,6 +27,12 @@ os.system("/bin/tar --create --file %s.tar %s" % (args.archive, args.logins))
 
 for student in logins_file_d:
 
+    words=student.split(":")
+    
+    #
+    # last word
+    #
+    student=words[-1]
     student=student.strip('\n\r\t ')
 
     command_line="/bin/tar --remove-files --append --file %s.tar ~%s" %( args.archive, student )
