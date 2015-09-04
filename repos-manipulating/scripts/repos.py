@@ -51,8 +51,14 @@ if args.action == "clone":
     if not  os.path.exists("src"):
         os.mkdir("src")
 
-    for login in file_d:
+    for student in file_d:
+        words=student.split(":")
+        #
+        # last word
+        #
+        login=words[-1]
         login=login.strip()
+        login=login.strip('"')
         print "begin work for  \"%s\" ---->" % login
         command_line="git clone ssh://%s\@%s/home/%s/repos src/%s" %\
         (
@@ -65,16 +71,29 @@ if args.action == "clone":
         print "finish work for \"%s\" <----\n\n" % login
 
 if args.action == "pull" or args.action == "push":
-    for login in file_d:
+    for student in file_d:
+        words=student.split(":")
+        #
+        # last word
+        #
+        login=words[-1]
         login=login.strip()
+        login=login.strip('"')
         print "begin work for  \"%s\" ---->" % login
         command_line="cd src/%s; git %s; cd .." % (login, args.action)
         os.system(command_line)
         print "finish work for \"%s\" <----\n\n" % login
 
 if args.action == "add-to-trac":
-    for login in file_d:
+    for student in file_d:
+        words=student.split(":")
+        #
+        # last word
+        #
+        login=words[-1]
         login=login.strip()
+        login=login.strip('"')
+         
         command_line="trac-admin %s repository add %s-%s %s/src/%s/.git git" %\
                 (
                         options["trac_env_path"],
@@ -88,8 +107,15 @@ if args.action == "add-to-trac":
         print "finish add \"%s\" to trac\n\n" % login
 
 if args.action == "remove-from-trac":
-    for login in file_d:
+    for student in file_d:
+        words=student.split(":")
+        #
+        # last word
+        #
+        login=words[-1]
         login=login.strip()
+        login=login.strip('"')
+        
         command_line="trac-admin %s repository remove %s-%s" %\
                 (
                         options["trac_env_path"],

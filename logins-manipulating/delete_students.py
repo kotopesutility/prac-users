@@ -33,7 +33,7 @@ for student in logins_file_d:
     # last word
     #
     student=words[-1]
-    student=student.strip('\n\r\t ')
+    student=student.strip('"\n\r\t ')
 
     command_line="/bin/tar --remove-files --append --file %s.tar ~%s" %( args.archive, student )
     os.system(command_line)
