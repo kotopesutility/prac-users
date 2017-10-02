@@ -20,6 +20,11 @@ parser.add_argument('--archive',dest='archive', required=True, help="Name of arc
 
 args=parser.parse_args()
 
+if os.geteuid() != 0:
+    print "You need root permissions to execute this script"
+    sys.exit(1)
+
+
 logins_file_d=open(args.logins)
 
 tmp_fd=os.open(args.archive+".tar",os.O_CREAT|os.O_EXCL,0600)
