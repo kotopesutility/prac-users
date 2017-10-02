@@ -22,7 +22,8 @@ args=parser.parse_args()
 
 logins_file_d=open(args.logins)
 
-
+tmp_fd=os.open(args.archive+".tar",os.O_CREAT|os.O_EXCL,0600)
+os.close(tmp_fd)
 os.system("/bin/tar --create --file %s.tar %s" % (args.archive, args.logins))
 
 for student in logins_file_d:
