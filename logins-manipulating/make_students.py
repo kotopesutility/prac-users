@@ -83,7 +83,7 @@ def main(arguments_list=None):
     args=parser.parse_args(arguments_list[1:])
 
     if os.geteuid() != 0:
-        print "You need root permissions to execute this script"
+        print ("You need root permissions to execute this script")
         return 1
 
 
@@ -93,13 +93,13 @@ def main(arguments_list=None):
         args.passw_file="paswords_"+args.csv_file;
 
     passw_file=open(args.passw_file,"w")
-    os.chmod(args.passw_file, 0600)
+    os.chmod(args.passw_file, 0o600)
     os.chown(args.passw_file, os.getuid(), os.getgid())
 
     tmp_file_name="/tmp/make_students_%d" % os.getpid()
 
     tmp_passwd_file=open(tmp_file_name,"w")
-    os.chmod(tmp_file_name, 0600)
+    os.chmod(tmp_file_name, 0o600)
     #
     # Folowing code has no effect.
     #
@@ -153,10 +153,10 @@ def main(arguments_list=None):
         for teacher in teachers:
             os.system("/usr/sbin/usermod -a -G %s %s" % (login,teacher) )
         
-        print "User: %s \"%s\" created\n" % (login, full_name)
+        print ("User: %s \"%s\" created\n" % (login, full_name))
 
     tmp_passwd_file.close()
-    print "Changing passwords"
+    print ("Changing passwords")
     os.system("chpasswd < %s" % tmp_file_name )
     os.unlink(tmp_file_name)
 
