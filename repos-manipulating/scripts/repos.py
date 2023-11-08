@@ -4,7 +4,7 @@
 import os
 import argparse
 import sys
-import getpass 
+import getpass
 
 def parse_opts(config_file):
     """
@@ -14,7 +14,7 @@ def parse_opts(config_file):
     with comments in shell style '#'
     """
     options=dict()
-    
+
     #
     # set default options
     #
@@ -30,9 +30,9 @@ def parse_opts(config_file):
         opt=record.split('=')
         if len(opt) == 2 :
             options[opt[0].strip()]=opt[1].strip(' \n')
-    
+
     file_options.close()
-    
+
     return options
 
 def parse_student_string(student):
@@ -54,7 +54,7 @@ def parse_student_string(student):
     words=student.split(":")
     if len(words) != 3:
         return None
-    
+
     full_name = words[0].strip().strip('"')
     email     = words[1].strip().strip('"')
     login     = words[2].strip().strip('"')
@@ -66,21 +66,21 @@ def main(arguments_list=None):
     """
     This is the main functions for repositories manipulating
     """
-    
+
     if arguments_list == None:
         return 1
 
     parser = argparse.ArgumentParser(
             description="This program is maniputating with group of student's git repositories."
                         " For example performs multiple git clone.")
-    
+
     parser.add_argument("--config",
                         dest="config_file",
-                        required=False, 
+                        required=False,
                         default="etc/studs_repos.conf",
                         help="File with configuration"
                         )
-    
+
     parser.add_argument("--action",
                         dest="action",
                         choices = ['clone','pull','push','add-to-trac','remove-from-trac'],
@@ -93,17 +93,17 @@ def main(arguments_list=None):
 
     options=parse_opts(args.config_file)
     print (options)
-    
-    
-    
-    
+
+
+
+
     file_d=open(options["students_logins"],"r")
-    
-    
+
+
     if args.action == "clone":
         if not  os.path.exists("src"):
             os.mkdir("src")
-    
+
     for student_string in file_d:
 
         student=parse_student_string(student_string)
@@ -114,12 +114,12 @@ def main(arguments_list=None):
         login = student[2]
 
         command_line= ""
-        
+
         print ("begin work for  \"(%s) %s\" ---->" % (name, login))
 
         if args.action == "clone":
-            
-                       
+
+
             remote_path=options["repository_way"].replace("%STUDENT_LOGIN%",login)
             command_line="git clone ssh://%s\@%s%s src/%s" %\
                          (
@@ -132,13 +132,13 @@ def main(arguments_list=None):
         if args.action == "pull" or args.action == "push":
             command_line="cd src/%s; git %s; cd .." % (login, args.action)
 
-        if args.action == "add-to-trac":      
+        if args.action == "add-to-trac":
             command_line="trac-admin %s repository add %s-%s %s/src/%s/.git git" %\
                     (
                             options["trac_env_path"],
                             options["group_prefix"],
                             login,
-                            os.getcwd(), 
+                            os.getcwd(),
                             login
                     )
 
@@ -152,7 +152,7 @@ def main(arguments_list=None):
 
         os.system(command_line)
         print ("finish work for \"%s\" <----\n\n" % login)
-   
+
     file_d.close()
 
     return 0
@@ -160,4 +160,3 @@ def main(arguments_list=None):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
-

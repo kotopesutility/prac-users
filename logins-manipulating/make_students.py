@@ -8,31 +8,31 @@ import hashlib
 from datetime import date
 
 
-def parse_student_string(student):                                                                  
-    """                                                                                             
-    Very stupid parsing function.                                                                   
-    It splits by ':', then clear ".                                                                 
-                                                                                                    
-    There no defence for:                                                                           
-       " \" "                                                                                       
-    and for:                                                                                        
-       "abc:fff":"gggg"                                                                             
-    it will be parse incorrect.                                                                     
-    """                                                                                             
-    student = student.strip()                                                                       
-                                                                                                    
-    if len(student) == 0:                                                                           
-        return None                                                                                 
-                                                                                                    
-    words=student.split(":")                                                                        
-    if len(words) != 3:                                                                             
-        return None                                                                                 
-                                                                                                    
-    full_name = words[0].strip().strip('"')                                                         
-    email     = words[1].strip().strip('"')                                                         
-    login     = words[2].strip().strip('"')                                                         
-                                                                                                    
-    return (full_name, email, login)                                                                
+def parse_student_string(student):
+    """
+    Very stupid parsing function.
+    It splits by ':', then clear ".
+
+    There no defence for:
+       " \" "
+    and for:
+       "abc:fff":"gggg"
+    it will be parse incorrect.
+    """
+    student = student.strip()
+
+    if len(student) == 0:
+        return None
+
+    words=student.split(":")
+    if len(words) != 3:
+        return None
+
+    full_name = words[0].strip().strip('"')
+    email     = words[1].strip().strip('"')
+    login     = words[2].strip().strip('"')
+
+    return (full_name, email, login)
 
 
 
@@ -137,7 +137,7 @@ def main(arguments_list=None):
         password=my_hash.hexdigest()[0:12]
         passw_file.write("\"%s\":\"%s\":\"%s\"\n" % (full_name, login, password))
         tmp_passwd_file.write("%s:%s\n" % (login, password))
-    
+
         command_line="/usr/sbin/useradd --user-group"\
                      " --comment \"%s,,,%s; %s\" --create-home --shell /bin/bash %s" %\
                     (
@@ -149,10 +149,10 @@ def main(arguments_list=None):
         os.system(command_line)
         #   os.system("echo passwd -e %s" % (login))
         os.system("chmod -R o-rwx ~%s" % login )
-        
+
         for teacher in teachers:
             os.system("/usr/sbin/usermod -a -G %s %s" % (login,teacher) )
-        
+
         print ("User: %s \"%s\" created\n" % (login, full_name))
 
     tmp_passwd_file.close()
