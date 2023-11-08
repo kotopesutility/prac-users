@@ -2,38 +2,29 @@
 # -*- coding: utf-8 -*-
 
 import os
+import csv
 import sys
 import argparse
 import hashlib
 from datetime import date
 
 
-def parse_student_string(student):
+def parse_csv(path, delimiter=":"):
     """
-    Very stupid parsing function.
-    It splits by ':', then clear ".
+    This function parse giving .csv file and create dictionary acording
+    with names from header as a dictionary.
 
-    There no defence for:
-       " \" "
-    and for:
-       "abc:fff":"gggg"
-    it will be parse incorrect.
+    :param path: path to the .csv file
+    :type path: str or pathlib.Path
+    :param delimiter: delimiter used in .csv file
+    :type delimiter: str
+    :return: parsed .csv file
+    :rtype: list of dictionaries
     """
-    student = student.strip()
-
-    if len(student) == 0:
-        return None
-
-    words=student.split(":")
-    if len(words) != 3:
-        return None
-
-    full_name = words[0].strip().strip('"')
-    email     = words[1].strip().strip('"')
-    login     = words[2].strip().strip('"')
-
-    return (full_name, email, login)
-
+    with open(path) as csv_file:
+        reader = csv.reader(csv_file, delimiter=delimiter)
+        keys = reader.__next__()
+        return [{k: val for k, val in zip(keys, line)} for line in reader]
 
 
 def main(arguments_list=None):
@@ -87,8 +78,6 @@ def main(arguments_list=None):
         return 1
 
 
-    csv_file_d=open(args.csv_file)
-
     if args.passw_file == "":
         args.passw_file="paswords_"+args.csv_file;
 
@@ -112,7 +101,7 @@ def main(arguments_list=None):
 
 
     new_str=""
-    for i in xrange(0,60):
+    for i in range(0,60):
         new_str += chr(ord(hash_salt[i]) % (60-30) + 31)
 
 
@@ -124,22 +113,18 @@ def main(arguments_list=None):
 
     teachers=args.teachers.split(',')
 
-    for student_string in csv_file_d:
-        student=parse_student_string(student_string)
-        if student == None:
-            continue
+    for students in parse_csv(args.csv_file):
+        full_name = students["name"]
+        email = students["email"]
+        login = students["username"]
 
-        full_name=student[0]
-        email=student[1]
-        login=student[2]
-
-        my_hash.update(login+full_name)
-        password=my_hash.hexdigest()[0:12]
+        my_hash.update(login + full_name)
+        password = my_hash.hexdigest()[0:12]
         passw_file.write("\"%s\":\"%s\":\"%s\"\n" % (full_name, login, password))
         tmp_passwd_file.write("%s:%s\n" % (login, password))
 
-        command_line="/usr/sbin/useradd --user-group"\
-                     " --comment \"%s,,,%s; %s\" --create-home --shell /bin/bash %s" %\
+        command_line = "/usr/sbin/useradd --user-group"\
+                       " --comment \"%s,,,%s; %s\" --create-home --shell /bin/bash %s" %\
                     (
                         full_name,
                         email,
@@ -148,24 +133,22 @@ def main(arguments_list=None):
                     )
         os.system(command_line)
         #   os.system("echo passwd -e %s" % (login))
-        os.system("chmod -R o-rwx ~%s" % login )
+        os.system("chmod -R o-rwx ~%s" % login)
 
         for teacher in teachers:
-            os.system("/usr/sbin/usermod -a -G %s %s" % (login,teacher) )
+            os.system("/usr/sbin/usermod -a -G %s %s" % (login, teacher))
 
-        print ("User: %s \"%s\" created\n" % (login, full_name))
+        print("User: %s \"%s\" created\n" % (login, full_name))
 
     tmp_passwd_file.close()
-    print ("Changing passwords")
-    os.system("chpasswd < %s" % tmp_file_name )
+    print("Changing passwords")
+    os.system("chpasswd < %s" % tmp_file_name)
     os.unlink(tmp_file_name)
 
-    csv_file_d.close()
     passw_file.close()
 
     return 0
 
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
-
-
