@@ -69,7 +69,7 @@ def main(arguments_list=None):
     args=parser.parse_args(arguments_list[1:])
 
     if os.geteuid() != 0:
-        print "You need root permissions to execute this script"
+        print("You need root permissions to execute this script")
         return 1
 
 
@@ -96,11 +96,11 @@ def main(arguments_list=None):
         os.system("/usr/sbin/userdel %s" % ( login ))
         os.system("/usr/sbin/groupdel %s" % ( login ))
 
-        print "User: %s (%s) deleted" % ( login, name )
+        print("User: %s (%s) deleted" % ( login, name ))
 
     logins_file_d.close()
 
-    print "Now compressing %s" % (args.archive)
+    print("Now compressing %s" % (args.archive))
     os.system("gzip --best %s.tar" % (args.archive))
 
     return 0
