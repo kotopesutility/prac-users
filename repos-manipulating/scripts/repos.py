@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import csv
 import argparse
 import sys
 import getpass
@@ -37,31 +38,22 @@ def parse_opts(config_file):
     return options
 
 
-def parse_student_string(student):
+def parse_csv(path, delimiter=":"):
     """
-    Very stupid parsing function.
-    It splits by ':', then clear ".
+    This function parse giving .csv file and create dictionary acording
+    with names from header as a dictionary.
 
-    There no defence for:
-       " \" "
-    and for:
-       "abc:fff":"gggg"
-    it will be parse incorrect.
+    :param path: path to the .csv file
+    :type path: str or pathlib.Path
+    :param delimiter: delimiter used in .csv file
+    :type delimiter: str
+    :return: parsed .csv file
+    :rtype: list of dictionaries
     """
-    student = student.strip()
-
-    if len(student) == 0:
-        return None
-
-    words = student.split(":")
-    if len(words) != 3:
-        return None
-
-    full_name = words[0].strip().strip('"')
-    email     = words[1].strip().strip('"')
-    login     = words[2].strip().strip('"')
-
-    return (full_name, email, login)
+    with open(path) as csv_file:
+        reader = csv.reader(csv_file, delimiter=delimiter)
+        keys = reader.__next__()
+        return [{k: val for k, val in zip(keys, line)} for line in reader]
 
 
 def main(arguments_list=None):
@@ -96,20 +88,14 @@ def main(arguments_list=None):
     options = parse_opts(args.config_file)
     print(options)
 
-    file_d = open(options["students_logins"], "r")
-
     if args.action == "clone":
         if not os.path.exists("src"):
             os.mkdir("src")
 
-    for student_string in file_d:
-
-        student = parse_student_string(student_string)
-        if student is None:
-            continue
-
-        name  = student[0]
-        login = student[2]
+    for student in parse_csv(options["students_logins"]):
+        name  = student["name"]
+        login = student["username"]
+        local_path = student.setdefault("repo_path", "")
 
         command_line = ""
 
@@ -117,12 +103,13 @@ def main(arguments_list=None):
 
         if args.action == "clone":
             remote_path = options["repository_way"].replace("%STUDENT_LOGIN%", login)
-            command_line = "git clone ssh://%s\@%s%s src/%s" %\
+            command_line = "git clone ssh://%s\@%s%s src/%s %s" %\
                            (
                               options["remote_user"],
                               options["host"],
                               remote_path,
-                              login
+                              login,
+                              local_path
                            )
 
         if args.action == "pull" or args.action == "push":
@@ -148,8 +135,6 @@ def main(arguments_list=None):
 
         os.system(command_line)
         print("finish work for \"%s\" <----\n\n" % login)
-
-    file_d.close()
 
     return 0
 
